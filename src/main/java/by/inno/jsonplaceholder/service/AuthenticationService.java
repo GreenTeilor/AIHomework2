@@ -3,13 +3,14 @@ package by.inno.jsonplaceholder.service;
 import by.inno.jsonplaceholder.dto.AuthenticationRequest;
 import by.inno.jsonplaceholder.dto.AuthenticationResponse;
 import by.inno.jsonplaceholder.dto.RegisterRequest;
+import by.inno.jsonplaceholder.entity.Authentication;
 import by.inno.jsonplaceholder.entity.Role;
-import by.inno.jsonplaceholder.entity.User;
-import by.inno.jsonplaceholder.repository.UserRepository;
+import by.inno.jsonplaceholder.repository.AuthenticationRepository;
 import by.inno.jsonplaceholder.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,28 +19,28 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-    private final UserRepository userRepository;
+
+    private final AuthenticationRepository authenticationRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (authenticationRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
 
-        var user = User.builder()
+        var authentication = Authentication.builder()
                 .id(UUID.randomUUID())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
-                .username(request.getUsername())
                 .role(Role.USER)
                 .build();
-        userRepository.save(user);
+        authenticationRepository.save(authentication);
 
-        var accessToken = jwtService.generateAccessToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+        var accessToken = jwtService.generateAccessToken(authentication);
+        var refreshToken = jwtService.generateRefreshToken(authentication);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
@@ -55,11 +56,11 @@ public class AuthenticationService {
                 )
         );
 
-        var user = userRepository.findByEmail(request.getEmail())
+        var authentication = authenticationRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        var accessToken = jwtService.generateAccessToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+        var accessToken = jwtService.generateAccessToken(authentication);
+        var refreshToken = jwtService.generateRefreshToken(authentication);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
@@ -73,19 +74,24 @@ public class AuthenticationService {
             throw new RuntimeException("Invalid refresh token");
         }
 
-        var user = userRepository.findByEmail(userEmail)
+        var authentication = authenticationRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!jwtService.isTokenValid(refreshToken, user)) {
+        if (!jwtService.isTokenValid(refreshToken, authentication)) {
             throw new RuntimeException("Invalid refresh token");
         }
 
-        var accessToken = jwtService.generateAccessToken(user);
-        var newRefreshToken = jwtService.generateRefreshToken(user);
+        var accessToken = jwtService.generateAccessToken(authentication);
+        var newRefreshToken = jwtService.generateRefreshToken(authentication);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(newRefreshToken)
                 .build();
+    }
+
+    public Authentication getSelf() {
+        UUID userId = ((Authentication) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        return authenticationRepository.findById(userId).orElseThrow(RuntimeException::new);
     }
 } 

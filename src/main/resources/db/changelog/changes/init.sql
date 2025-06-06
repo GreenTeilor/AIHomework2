@@ -25,6 +25,15 @@ CREATE TABLE addresses (
     geo_id UUID REFERENCES geo_locations(id)
 );
 
+--changeset system:001-5
+CREATE TABLE authentication (
+    id UUID PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    role TEXT NOT NULL,
+    password_hash TEXT NOT NULL
+);
+
 --changeset system:001-4
 CREATE TABLE users (
     id UUID PRIMARY KEY,
@@ -35,8 +44,7 @@ CREATE TABLE users (
     website TEXT,
     address_id UUID REFERENCES addresses(id),
     company_id UUID REFERENCES companies(id),
-    password_hash TEXT NOT NULL,
-    role TEXT NOT NULL
+    owner_id UUID NOT NULL REFERENCES authentication(id)
 );
 
 --rollback DROP TABLE users;

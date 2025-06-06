@@ -1,5 +1,6 @@
 package by.inno.jsonplaceholder.entity;
 
+import by.inno.jsonplaceholder.constant.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

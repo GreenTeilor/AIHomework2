@@ -1,4 +1,4 @@
-package by.inno.jsonplaceholder.entity;
+package by.inno.jsonplaceholder.constant;
 
 public enum Role {
     USER,

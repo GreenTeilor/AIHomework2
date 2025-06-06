@@ -1,4 +1,4 @@
-package by.inno.jsonplaceholder.entity;
+package by.inno.jsonplaceholder.entity.stub.user;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -33,4 +33,21 @@ public class User {
 
     @Column(nullable = false)
     private String website;
+
+    @Column(nullable = false)
+    private UUID addressId;
+
+    @Column(nullable = false)
+    private UUID companyId;
+
+    @Column(nullable = false)
+    private UUID ownerId;
+
+    @OneToOne
+    @JoinColumn(name = "addressId", nullable = false, insertable = false, updatable = false)
+    private Address address;
+
+    @OneToOne
+    @JoinColumn(name = "companyId", nullable = false, insertable = false, updatable = false)
+    private Company company;
 }

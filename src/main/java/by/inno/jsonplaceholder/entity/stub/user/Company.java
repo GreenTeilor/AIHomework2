@@ -1,4 +1,4 @@
-package by.inno.jsonplaceholder.entity;
+package by.inno.jsonplaceholder.entity.stub.user;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -4,7 +4,7 @@ import by.inno.jsonplaceholder.dto.AuthenticationRequest;
 import by.inno.jsonplaceholder.dto.AuthenticationResponse;
 import by.inno.jsonplaceholder.dto.RegisterRequest;
 import by.inno.jsonplaceholder.entity.Authentication;
-import by.inno.jsonplaceholder.entity.Role;
+import by.inno.jsonplaceholder.constant.Role;
 import by.inno.jsonplaceholder.repository.AuthenticationRepository;
 import by.inno.jsonplaceholder.security.JwtService;
 import lombok.RequiredArgsConstructor;
